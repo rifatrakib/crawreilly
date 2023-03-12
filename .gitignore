@@ -129,5 +129,7 @@ dmypy.json
 .pyre/
 
 # Personal Notes
+data/
+keys/
 notes/
 *.json
