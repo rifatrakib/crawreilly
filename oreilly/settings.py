@@ -17,7 +17,7 @@ NEWSPIDER_MODULE = "oreilly.spiders"
 # USER_AGENT = "oreilly (+http://www.yourdomain.com)"
 
 # Obey robots.txt rules
-ROBOTSTXT_OBEY = True
+ROBOTSTXT_OBEY = False
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 # CONCURRENT_REQUESTS = 32
@@ -44,15 +44,15 @@ ROBOTSTXT_OBEY = True
 
 # Enable or disable spider middlewares
 # See https://docs.scrapy.org/en/latest/topics/spider-middleware.html
-# SPIDER_MIDDLEWARES = {
-#    "oreilly.middlewares.OreillySpiderMiddleware": 543,
-# }
+SPIDER_MIDDLEWARES = {
+    "oreilly.middlewares.OreillySpiderMiddleware": 543,
+}
 
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
-# DOWNLOADER_MIDDLEWARES = {
-#    "oreilly.middlewares.OreillyDownloaderMiddleware": 543,
-# }
+DOWNLOADER_MIDDLEWARES = {
+    "oreilly.middlewares.OreillyDownloaderMiddleware": 543,
+}
 
 # Enable or disable extensions
 # See https://docs.scrapy.org/en/latest/topics/extensions.html
@@ -62,9 +62,11 @@ ROBOTSTXT_OBEY = True
 
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-# ITEM_PIPELINES = {
-#    "oreilly.pipelines.OreillyPipeline": 300,
-# }
+ITEM_PIPELINES = {
+    "oreilly.pipelines.CSVPipeline": 100,
+    "oreilly.pipelines.JSONPipeline": 200,
+    "oreilly.pipelines.JSONLinesPipeline": 300,
+}
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html
