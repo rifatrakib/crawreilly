@@ -15,16 +15,9 @@ class OreillySpiderMiddleware:
         return s
 
     def process_spider_input(self, response, spider):
-        if response.status == 200:
-            response.meta["response_in"] = datetime.utcnow().isoformat()
-            response.meta["request_sent"] = response.headers["request_sent"].decode("utf-8")
-            response.meta["response_received"] = response.headers["response_received"].decode("utf-8")
         return None
 
     def process_spider_output(self, response, result, spider):
-        if response.status == 200:
-            response.meta["response_out"] = datetime.utcnow().isoformat()
-
         for i in result:
             yield i
 
@@ -63,6 +56,9 @@ class OreillyDownloaderMiddleware:
         return s
 
     def process_request(self, request, spider):
+        if request.headers:
+            return None
+
         location = "keys/credentials"
         Path(location).mkdir(parents=True, exist_ok=True)
 
@@ -78,7 +74,6 @@ class OreillyDownloaderMiddleware:
             request.cookies[key] = value
 
         request.headers["content-type"] = "application/json"
-        request.headers["request_sent"] = datetime.utcnow().isoformat()
 
         if spider.name != "auth":
             credentials = read_json_credentials(spider.name)
@@ -94,8 +89,6 @@ class OreillyDownloaderMiddleware:
     def process_response(self, request, response, spider):
         location = "logs/fails"
         Path(location).mkdir(parents=True, exist_ok=True)
-        response.headers["request_sent"] = request.headers["request_sent"]
-        response.headers["response_received"] = datetime.utcnow().isoformat()
 
         if (
             response.status == 200
