@@ -1,3 +1,5 @@
+from decouple import config
+
 # Scrapy settings for oreilly project
 #
 # For simplicity, this file contains only settings considered important or
@@ -93,3 +95,5 @@ ITEM_PIPELINES = {
 REQUEST_FINGERPRINTER_IMPLEMENTATION = "2.7"
 TWISTED_REACTOR = "twisted.internet.asyncioreactor.AsyncioSelectorReactor"
 FEED_EXPORT_ENCODING = "utf-8"
+
+CATALOGUE_URL = config("CATALOGUE_URL")
