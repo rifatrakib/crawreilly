@@ -33,10 +33,11 @@ class BookSpider(scrapy.Spider):
             catalogue = json.loads(reader.read())
 
         for book in catalogue:
-            identifier = book.get("archive_id", None)
-            if not identifier:
+            content_format = book.get("content_format", None)
+            if content_format != "book":
                 continue
 
+            identifier = book.get("archive_id", None)
             url = f"{self.base_url}/api/v2/epub-chapters/{identifier}-/cover.html/"
             metadata = {
                 "category": book["topics_payload"][0]["name"],
