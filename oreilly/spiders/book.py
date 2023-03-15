@@ -5,6 +5,7 @@ from pathlib import Path
 import scrapy
 
 from services.credentials import prepare_json_credentials, read_json_credentials
+from services.formatters import format_folder_and_file_name
 
 
 class BookSpider(scrapy.Spider):
@@ -13,9 +14,11 @@ class BookSpider(scrapy.Spider):
 
     def get_directory(self, kwargs):
         root_directory = "data/resources"
-        category = kwargs.get("category")
-        name = kwargs.get("name")
+        category = format_folder_and_file_name(kwargs.get("category"))
+        name = format_folder_and_file_name(kwargs.get("name"))
         page = kwargs.get("page", None)
+        if page:
+            page = format_folder_and_file_name(page)
 
         directory = f"{root_directory}/{category}/{name}"
         if page:
@@ -29,15 +32,22 @@ class BookSpider(scrapy.Spider):
         with open(f"data/json/catalogue-{current_date}.json") as reader:
             catalogue = json.loads(reader.read())
 
-        metadata = {
-            "category": catalogue[0]["topics_payload"][0]["name"],
-            "name": catalogue[0]["title"],
-        }
-        yield scrapy.Request(
-            url=f"{self.base_url}/api/v2/epub-chapters/{catalogue[0]['archive_id']}-/cover.html/",
-            callback=self.parse_resources,
-            cb_kwargs=metadata,
-        )
+        for book in catalogue:
+            identifier = book.get("archive_id", None)
+            if not identifier:
+                continue
+
+            url = f"{self.base_url}/api/v2/epub-chapters/{identifier}-/cover.html/"
+            metadata = {
+                "category": book["topics_payload"][0]["name"],
+                "name": book["title"],
+            }
+
+            yield scrapy.Request(
+                url=url,
+                callback=self.parse_resources,
+                cb_kwargs=metadata,
+            )
 
     def parse_resources(self, response, **kwargs):
         data = {**response.json(), **kwargs}
@@ -102,6 +112,7 @@ class BookSpider(scrapy.Spider):
     def parse_htmls(self, response, **kwargs):
         location = self.get_directory(kwargs)
         file_name = response.url.rsplit("/")[-1]
+        file_name = format_folder_and_file_name(file_name)
         html = response.body
 
         with open(f"{location}/{file_name}", "wb") as writer:
@@ -110,6 +121,7 @@ class BookSpider(scrapy.Spider):
     def parse_styles(self, response, **kwargs):
         location = self.get_directory(kwargs)
         file_name = response.url.rsplit("/")[-1]
+        file_name = format_folder_and_file_name(file_name)
         styles = response.body
 
         with open(f"{location}/{file_name}", "wb") as writer:
@@ -118,6 +130,7 @@ class BookSpider(scrapy.Spider):
     def parse_images(self, response, **kwargs):
         location = self.get_directory(kwargs)
         file_name = response.url.rsplit("/")[-1]
+        file_name = format_folder_and_file_name(file_name)
         image = response.body
 
         with open(f"{location}/{file_name}", "wb") as writer:
