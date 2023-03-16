@@ -3,6 +3,7 @@ from datetime import datetime
 from pathlib import Path
 
 from itemadapter import ItemAdapter
+from pymongo import MongoClient
 from scrapy import signals
 from scrapy.exporters import CsvItemExporter
 
@@ -100,4 +101,30 @@ class JSONLinesPipeline:
     def process_item(self, item, spider):
         line = json.dumps(ItemAdapter(item).asdict()) + "\n"
         self.file.write(line)
+        return item
+
+
+class MongoDBPipeline:
+    def __init__(self, mongo_uri, mongo_db):
+        self.mongo_uri = mongo_uri
+        self.mongo_db = mongo_db
+
+    @classmethod
+    def from_crawler(cls, crawler):
+        return cls(
+            mongo_uri=crawler.settings.get("MONGO_URI"),
+            mongo_db=crawler.settings.get("MONGO_DATABASE", "oreilly"),
+        )
+
+    def open_spider(self, spider):
+        self.client = MongoClient(self.mongo_uri)
+        self.db = self.client[self.mongo_db]
+        self.db[spider.name].delete_many({})
+
+    def close_spider(self, spider):
+        self.client.close()
+
+    def process_item(self, item, spider):
+        data = ItemAdapter(item).asdict()
+        self.db[spider.name].insert_one(data)
         return item

@@ -97,3 +97,7 @@ TWISTED_REACTOR = "twisted.internet.asyncioreactor.AsyncioSelectorReactor"
 FEED_EXPORT_ENCODING = "utf-8"
 
 CATALOGUE_URL = config("CATALOGUE_URL")
+
+# database credentials
+MONGO_URI = config("MONGO_URI")
+MONGO_DATABASE = config("MONGO_DATABASE")
