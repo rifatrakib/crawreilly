@@ -12,6 +12,7 @@ To run this scraper, you'll need to have the following:
 * Python >=3.9
 * [Scrapy](https://scrapy.org/)
 * [WeasyPrint](https://weasyprint.org/)
+* MongoDB and a MongoDB cluster along with its URI for the app to communicate with the right database.
 
 
 ### Installation
@@ -44,7 +45,7 @@ First, you need to authenticate yourself with your [O'Reilly](https://www.oreill
 
 ### Collecting Catalogue Information
 
-The `catalogue` spider collects information about all books and other resources from [O'Reilly catalogue](https://learning.oreilly.com/topics/) and stores them as a *CSV*, *JSON*, and *JSONLines* files locally in `data/csv`, `data/json`, and `data/jsonline` directories respectively:
+The `catalogue` spider collects information about all books and other resources from [O'Reilly catalogue](https://learning.oreilly.com/topics/) and stores them as a *CSV*, *JSON*, and *JSONLines* files locally in `data/csv`, `data/json`, and `data/jsonline` directories respectively, and store the *JSON* formatted records in MongoDB collections called `catalogue` after the spider name:
 
 1. In a web browser, [log in to O'Reilly](https://www.oreilly.com/member/login/) using your credentials.
 
@@ -52,7 +53,7 @@ The `catalogue` spider collects information about all books and other resources 
 
 3. In the terminal, navigate to the project directory.
 
-4. Run the scraper using the command scrapy crawl catalogue -o catalogue.json. This will collect information about all books and other resources from [O'Reilly catalogue](https://learning.oreilly.com/topics/) and save it as a *CSV*, *JSON*, and *JSONLines* files in `data/csv`, `data/json`, and `data/jsonline` directories respectively.
+4. Run the scraper using the command scrapy crawl catalogue -o catalogue.json. This will collect information about all books and other resources from [O'Reilly catalogue](https://learning.oreilly.com/topics/) and save it as a *CSV*, *JSON*, and *JSONLines* files in `data/csv`, `data/json`, and `data/jsonline` directories respectively, and store the *JSON* formatted records in MongoDB collections called `catalogue` after the spider name.
 
 
 ### Downloading and Pre-Processing Resources
@@ -66,6 +67,8 @@ The `book` spider downloads, pre-processes the scraped HTML, CSS, and image reso
 3. In the terminal, navigate to the project directory.
 
 4. Run the scraper using the command scrapy crawl book. This will download and pre-process the HTML, CSS, and image resources for each book in your O'Reilly subscription and save them locally based on their category and book title. The pre-processing includes, but not limited to, fixing links so that the final PDF is a more readable and complete representation of the book.
+
+5. Information about each individual book in *JSON* format, which is also the source of the URLs for the corresponding HTMLs, CSSs, and images, will be stored in a MongoDB collection called `book` along with some metadata.
 
 
 ## Contributing
