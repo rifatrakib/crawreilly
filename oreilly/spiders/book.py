@@ -16,13 +16,13 @@ class BookSpider(scrapy.Spider):
         root_directory = "data/resources"
         category = format_folder_and_file_name(kwargs.get("category"))
         name = format_folder_and_file_name(kwargs.get("name"))
+        directory = f"{root_directory}/{category}/{name}"
+
         page = kwargs.get("page", None)
         if page:
-            page = format_folder_and_file_name(page)
-
-        directory = f"{root_directory}/{category}/{name}"
-        if page:
-            directory = f"{root_directory}/{category}/{name}/{page}"
+            serial = kwargs.get("serial")
+            page = format_folder_and_file_name(f"{serial}-{page}")
+            directory = f"{directory}/{page}"
 
         Path(directory).mkdir(parents=True, exist_ok=True)
         return directory
@@ -42,6 +42,7 @@ class BookSpider(scrapy.Spider):
             metadata = {
                 "category": book["topics_payload"][0]["name"],
                 "name": book["title"],
+                "serial": 1,
             }
 
             yield scrapy.Request(
@@ -102,6 +103,7 @@ class BookSpider(scrapy.Spider):
 
         root_url = response.url.rsplit("/", 2)[0]
         next_chapter = assets.get("next_chapter", None)
+        kwargs["serial"] = kwargs.get("serial") + 1
         if next_chapter:
             next_item = next_chapter["url"].rsplit("/", 1)[-1]
             yield scrapy.Request(
@@ -112,8 +114,10 @@ class BookSpider(scrapy.Spider):
 
     def parse_htmls(self, response, **kwargs):
         location = self.get_directory(kwargs)
+        serial = kwargs.get("serial")
         file_name = response.url.rsplit("/")[-1]
         file_name = format_folder_and_file_name(file_name)
+        file_name = f"{serial}-{file_name}"
         html = response.body
 
         with open(f"{location}/{file_name}", "wb") as writer:
@@ -121,8 +125,10 @@ class BookSpider(scrapy.Spider):
 
     def parse_styles(self, response, **kwargs):
         location = self.get_directory(kwargs)
+        serial = kwargs.get("serial")
         file_name = response.url.rsplit("/")[-1]
         file_name = format_folder_and_file_name(file_name)
+        file_name = f"{serial}-{file_name}"
         styles = response.body
 
         with open(f"{location}/{file_name}", "wb") as writer:
