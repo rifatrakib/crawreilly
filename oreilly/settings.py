@@ -68,6 +68,7 @@ ITEM_PIPELINES = {
     "oreilly.pipelines.CSVPipeline": 100,
     "oreilly.pipelines.JSONPipeline": 200,
     "oreilly.pipelines.JSONLinesPipeline": 300,
+    "oreilly.pipelines.MongoDBPipeline": 400,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
