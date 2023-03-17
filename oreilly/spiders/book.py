@@ -32,7 +32,16 @@ class BookSpider(scrapy.Spider):
         with open(f"data/json/catalogue-{current_date}.json") as reader:
             catalogue = json.loads(reader.read())
 
-        for book in catalogue:
+        already_scraped = []
+        if Path("data/scraped.txt").is_file():
+            with open("data/scraped.txt") as reader:
+                for line in reader.readlines():
+                    already_scraped.append(int(line))
+
+        for index, book in enumerate(catalogue):
+            if index in already_scraped:
+                continue
+
             content_format = book.get("content_format", None)
             if content_format != "book":
                 continue
@@ -43,6 +52,7 @@ class BookSpider(scrapy.Spider):
                 "category": book["topics_payload"][0]["name"],
                 "name": book["title"],
                 "serial": 1,
+                "index": index,
             }
 
             yield scrapy.Request(
@@ -111,6 +121,10 @@ class BookSpider(scrapy.Spider):
                 callback=self.parse_resources,
                 cb_kwargs=kwargs,
             )
+        else:
+            book_index = kwargs.get("index")
+            with open("data/scraped.txt", "a") as writer:
+                writer.write(f"{book_index}\n")
 
     def parse_htmls(self, response, **kwargs):
         location = self.get_directory(kwargs)
