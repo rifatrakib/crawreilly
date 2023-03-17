@@ -12,6 +12,7 @@ Scrapy = "^2.8.0"
 python-decouple = "^3.8"
 weasyprint = "^58.1"
 pymongo = "^4.3.3"
+chardet = "^5.1.0"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.1.1"
