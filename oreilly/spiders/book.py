@@ -2,7 +2,9 @@ import json
 from datetime import datetime
 from pathlib import Path
 
+import chardet
 import scrapy
+from scrapy.selector import Selector
 
 from services.credentials import prepare_json_credentials, read_json_credentials
 from services.formatters import format_folder_and_file_name
@@ -132,9 +134,23 @@ class BookSpider(scrapy.Spider):
         file_name = response.url.rsplit("/")[-1]
         file_name = format_folder_and_file_name(file_name)
         file_name = f"{serial}-{file_name}"
-        html = response.body
 
-        with open(f"{location}/{file_name}", "wb") as writer:
+        encoding_format = chardet.detect(response.body)["encoding"]
+        html = response.body.decode(encoding_format)
+        selector = Selector(text=html)
+        image_urls = selector.css("img::attr(src)").extract()
+
+        modified_urls = []
+        for url in image_urls:
+            image_name = url.rsplit("/", 1)[-1]
+            folder_name = file_name.rsplit(".", 1)[0]
+            modified_url = f"{folder_name}/{image_name}"
+            modified_urls.append(modified_url)
+
+        for original_link, modified_link in zip(image_urls, modified_urls):
+            html = html.replace(original_link, modified_link)
+
+        with open(f"{location}/{file_name}", "w", encoding=encoding_format) as writer:
             writer.write(html)
 
     def parse_styles(self, response, **kwargs):
