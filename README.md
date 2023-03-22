@@ -71,6 +71,15 @@ The `book` spider downloads, pre-processes the scraped HTML, CSS, and image reso
 5. Information about each individual book in *JSON* format, which is also the source of the URLs for the corresponding HTMLs, CSSs, and images, will be stored in a MongoDB collection called `book` along with some metadata.
 
 
+### Combining Resources into PDFs
+
+After running the `book` spider, you can *combine all corresponding resources* (HTMLs, CSSs, and images) for each individual book and create **one PDF per book** by running the following command:
+
+1. In the terminal, navigate to the project directory.
+
+2. Run the command `python services/pdfmaker.py`. This will *combine all the corresponding resources* (HTMLs, CSSs, and images) for each individual book and create **one PDF per book**. The PDFs will be saved in the `data/books` directory.
+
+
 ## Contributing
 
 Contributions are always welcome! Please follow these steps to contribute:
